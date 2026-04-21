@@ -13,13 +13,13 @@ Use a root folder with train/val splits:
 
 Each split can contain nested folders. The script scans all `*.csv` files recursively.
 
-## 2. Preprocess (history=1s, future=8s)
+## 2. Preprocess (history=1s, future=3s)
 
-`past_steps=10` and `future_steps=80` correspond to 10Hz data.
+`past_steps=10` and `future_steps=30` correspond to 10Hz data.
 
 ```
 cd mtr/datasets/interaction
-python data_preprocess.py <raw_interaction_root> ../../../data/interaction --past_steps 10 --future_steps 80
+python data_preprocess.py <raw_interaction_root> ../../../data/interaction --past_steps 10 --future_steps 30
 ```
 
 ## 3. Output Structure
