@@ -27,3 +27,17 @@ Test:
 cd tools
 python test.py --cfg_file cfgs/interaction/mtr_interaction_h1s_f3s.yaml --ckpt ../output/interaction/mtr_interaction_h1s_f3s/interaction_h1s_f3s/ckpt/best_model.pth --extra_tag interaction_h1s_f3s
 ```
+
+## Training & Testing with Direct DIGIR PKL (history=1s, future=3s)
+
+Train:
+```
+cd tools
+python train.py --cfg_file cfgs/interaction/mtr_interaction_direct_pkl_h1s_f3s.yaml --extra_tag interaction_direct_pkl_h1s_f3s
+```
+
+Test:
+```
+cd tools
+python test.py --cfg_file cfgs/interaction/mtr_interaction_direct_pkl_h1s_f3s.yaml --ckpt ../output/interaction/mtr_interaction_direct_pkl_h1s_f3s/interaction_direct_pkl_h1s_f3s/ckpt/best_model.pth --extra_tag interaction_direct_pkl_h1s_f3s
+```

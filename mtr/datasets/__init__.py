@@ -11,11 +11,13 @@ from mtr.utils import common_utils
 
 from .waymo.waymo_dataset import WaymoDataset
 from .interaction.interaction_dataset import InteractionDataset
+from .interaction.interaction_pkl_dataset import InteractionPKLDataset
 
 
 __all__ = {
     'WaymoDataset': WaymoDataset,
     'InteractionDataset': InteractionDataset,
+    'InteractionPKLDataset': InteractionPKLDataset,
 }
 
 
