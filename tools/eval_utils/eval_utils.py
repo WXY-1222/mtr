@@ -63,6 +63,9 @@ def eval_one_epoch(cfg, model, dataloader, epoch_id, logger, dist_test=False, sa
     if dist_test:
         logger.info(f'Total number of samples before merging from multiple GPUs: {len(pred_dicts)}')
         pred_dicts = common_utils.merge_results_dist(pred_dicts, len(dataset), tmpdir=result_dir / 'tmpdir')
+        if pred_dicts is None:
+            # Non-zero ranks return None in distributed merge; only rank0 should continue evaluation.
+            return {}
         logger.info(f'Total number of samples after merging from multiple GPUs (removing duplicate): {len(pred_dicts)}')
 
     logger.info('*************** Performance of EPOCH %s *****************' % epoch_id)
