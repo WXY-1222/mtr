@@ -165,6 +165,28 @@ def main():
         add_worker_init_fn=args.add_worker_init_fn,
     )
 
+    # Keep model input/output dimensions aligned with the effective dataset frames.
+    history_frames = getattr(train_set, 'num_history_frames', None)
+    if history_frames is not None:
+        expected_agent_attr = int(history_frames) + 18
+        cur_agent_attr = int(cfg.MODEL.CONTEXT_ENCODER.NUM_INPUT_ATTR_AGENT)
+        if expected_agent_attr != cur_agent_attr:
+            logger.info(
+                f'Auto-adjust MODEL.CONTEXT_ENCODER.NUM_INPUT_ATTR_AGENT: '
+                f'{cur_agent_attr} -> {expected_agent_attr} (history_frames={history_frames})'
+            )
+            cfg.MODEL.CONTEXT_ENCODER.NUM_INPUT_ATTR_AGENT = expected_agent_attr
+
+    future_frames = getattr(train_set, 'num_future_frames', None)
+    if future_frames is not None:
+        cur_future_frames = int(cfg.MODEL.MOTION_DECODER.NUM_FUTURE_FRAMES)
+        if int(future_frames) != cur_future_frames:
+            logger.info(
+                f'Auto-adjust MODEL.MOTION_DECODER.NUM_FUTURE_FRAMES: '
+                f'{cur_future_frames} -> {int(future_frames)}'
+            )
+            cfg.MODEL.MOTION_DECODER.NUM_FUTURE_FRAMES = int(future_frames)
+
     model = model_utils.MotionTransformer(config=cfg.MODEL)
     if not args.without_sync_bn:
         model = torch.nn.SyncBatchNorm.convert_sync_batchnorm(model)

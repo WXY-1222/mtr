@@ -58,6 +58,27 @@ class InteractionPKLDataset(InteractionDataset):
         sample_interval = int(self.dataset_cfg.SAMPLE_INTERVAL[self.mode])
         self.samples = self.samples[::max(sample_interval, 1)]
 
+        if len(self.samples) > 0:
+            sample0 = self.samples[0]
+            sample_hist_len = int(np.asarray(sample0['trajectory']).shape[1])
+            sample_fut_len = int(np.asarray(sample0['future_trajectory']).shape[1])
+
+            if self.num_history_frames > sample_hist_len:
+                if self.logger is not None:
+                    self.logger.info(
+                        f'NUM_HISTORY_FRAMES={self.num_history_frames} is larger than PKL history length={sample_hist_len}, '
+                        f'auto-clamp to {sample_hist_len}'
+                    )
+                self.num_history_frames = sample_hist_len
+
+            if self.num_future_frames > sample_fut_len:
+                if self.logger is not None:
+                    self.logger.info(
+                        f'NUM_FUTURE_FRAMES={self.num_future_frames} is larger than PKL future length={sample_fut_len}, '
+                        f'auto-clamp to {sample_fut_len}'
+                    )
+                self.num_future_frames = sample_fut_len
+
         self.object_type_map = self.DEFAULT_OBJECT_TYPE_MAP.copy()
         cfg_type_map = self.dataset_cfg.get('OBJECT_TYPE_MAP', {})
         if isinstance(cfg_type_map, dict):
@@ -70,6 +91,10 @@ class InteractionPKLDataset(InteractionDataset):
         if self.logger is not None:
             self.logger.info(f'Load direct PKL from: {self.pkl_path}')
             self.logger.info(f'Use split: {split_key}, total samples after interval={sample_interval}: {len(self.samples)}')
+            self.logger.info(
+                f'Effective history/future frames: {self.num_history_frames}/{self.num_future_frames}, '
+                f'recommended NUM_INPUT_ATTR_AGENT={self.num_history_frames + 18}'
+            )
 
     def __len__(self):
         return len(self.samples)
