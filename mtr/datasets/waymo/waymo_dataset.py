@@ -307,14 +307,23 @@ class WaymoDataset(DatasetTemplate):
         acce = (vel - vel_pre) / max(float(time_delta), 1e-3)  # (num_centered_objects, num_objects, num_timestamps, 2)
         acce[:, :, 0, :] = acce[:, :, 1, :]
 
-        ret_obj_trajs = torch.cat((
-            obj_trajs[:, :, :, 0:6], 
-            object_onehot_mask,
-            object_time_embedding, 
-            object_heading_embedding,
-            obj_trajs[:, :, :, 7:9], 
-            acce,
-        ), dim=-1)
+        agent_input_mode = str(self.dataset_cfg.get('AGENT_INPUT_MODE', 'full')).lower()
+        if agent_input_mode in ['xy_only', 'xy']:
+            # Keep only position (x, y, z) + object/time identifiers, and drop heading/velocity-related inputs.
+            ret_obj_trajs = torch.cat((
+                obj_trajs[:, :, :, 0:3],
+                object_onehot_mask,
+                object_time_embedding,
+            ), dim=-1)
+        else:
+            ret_obj_trajs = torch.cat((
+                obj_trajs[:, :, :, 0:6],
+                object_onehot_mask,
+                object_time_embedding,
+                object_heading_embedding,
+                obj_trajs[:, :, :, 7:9],
+                acce,
+            ), dim=-1)
 
         ret_obj_valid_mask = obj_trajs[:, :, :, -1]  # (num_center_obejcts, num_objects, num_timestamps)  # TODO: CHECK THIS, 20220322
         ret_obj_trajs[ret_obj_valid_mask == 0] = 0
@@ -549,5 +558,4 @@ if __name__ == '__main__':
     except:
         yaml_config = yaml.safe_load(open(args.cfg_file))
     dataset_cfg = EasyDict(yaml_config)
-
 

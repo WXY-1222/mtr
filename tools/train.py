@@ -167,13 +167,17 @@ def main():
 
     # Keep model input/output dimensions aligned with the effective dataset frames.
     history_frames = getattr(train_set, 'num_history_frames', None)
+    agent_input_mode = str(cfg.DATA_CONFIG.get('AGENT_INPUT_MODE', 'full')).lower()
     if history_frames is not None:
-        expected_agent_attr = int(history_frames) + 18
+        if agent_input_mode in ['xy_only', 'xy']:
+            expected_agent_attr = int(history_frames) + 9
+        else:
+            expected_agent_attr = int(history_frames) + 18
         cur_agent_attr = int(cfg.MODEL.CONTEXT_ENCODER.NUM_INPUT_ATTR_AGENT)
         if expected_agent_attr != cur_agent_attr:
             logger.info(
                 f'Auto-adjust MODEL.CONTEXT_ENCODER.NUM_INPUT_ATTR_AGENT: '
-                f'{cur_agent_attr} -> {expected_agent_attr} (history_frames={history_frames})'
+                f'{cur_agent_attr} -> {expected_agent_attr} (history_frames={history_frames}, agent_input_mode={agent_input_mode})'
             )
             cfg.MODEL.CONTEXT_ENCODER.NUM_INPUT_ATTR_AGENT = expected_agent_attr
 
